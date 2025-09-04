@@ -1,58 +1,58 @@
 {
   "groups": [
     {
-      "name": "minio-aws",
+      "name": "winter-aws",
       "type": "com.zsq.winter.minio.config.AmazonS3Properties",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties"
     }
   ],
   "properties": [
     {
-      "name": "minio-aws.access-key",
+      "name": "winter-aws.access-key",
       "type": "java.lang.String",
       "description": "Access key就像用户ID，可以唯一标识你的账户",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties"
     },
     {
-      "name": "minio-aws.bucket",
+      "name": "winter-aws.bucket",
       "type": "java.lang.String",
       "description": "存储桶名称",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties"
     },
     {
-      "name": "minio-aws.custom-domain",
+      "name": "winter-aws.custom-domain",
       "type": "java.lang.String",
       "description": "自定义域名，配置此参数时，返回url优先使用",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties"
     },
     {
-      "name": "minio-aws.enabled",
+      "name": "winter-aws.enabled",
       "type": "java.lang.Boolean",
       "description": "是否启用，默认为：true，不填该属性或者为false不生效",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties",
       "defaultValue": true
     },
     {
-      "name": "minio-aws.endpoint",
+      "name": "winter-aws.endpoint",
       "type": "java.lang.String",
       "description": "地域节点(物理服务器地址)",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties"
     },
     {
-      "name": "minio-aws.path-style-access",
+      "name": "winter-aws.path-style-access",
       "type": "java.lang.Boolean",
-      "description": "true path-style nginx 反向代理和S3默认支持 pathStyle模式 {http:\/\/endpoint\/bucketname} http:\/\/s3.amazonaws.com\/bucket-name\/object-key。 false supports virtual-hosted-style 阿里云等需要配置为 virtual-hosted-style 模式{http:\/\/bucketname.endpoint}  http:\/\/s3.amazonaws.com\/bucket-name\/object-key 只是url的显示不一样",
+      "description": "true path-style nginx 反向代理和S3默认支持 pathStyle模式 {<a href=\"http:\/\/endpoint\/bucketname\">...<\/a>} <a href=\"http:\/\/s3.amazonaws.com\/bucket-name\/object-key\">...<\/a>。 false supports virtual-hosted-style 阿里云等需要配置为 virtual-hosted-style 模式{<a href=\"http:\/\/bucketname.endpoint\">...<\/a>}  <a href=\"http:\/\/s3.amazonaws.com\/bucket-name\/object-key\">...<\/a> 只是url的显示不一样",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties",
       "defaultValue": true
     },
     {
-      "name": "minio-aws.region",
+      "name": "winter-aws.region",
       "type": "java.lang.String",
       "description": "区域(默为ap-east-1)",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties"
     },
     {
-      "name": "minio-aws.secret-key",
+      "name": "winter-aws.secret-key",
       "type": "java.lang.String",
       "description": "Secret key是你账户的密码",
       "sourceType": "com.zsq.winter.minio.config.AmazonS3Properties"

@@ -522,8 +522,8 @@ public class AmazonS3Template {
     }
 
 
-    public PutObjectResult putObject(String bucketName, String objectName, InputStream stream,long contentLength,Integer size) throws IOException {
-        return this.putObject(bucketName, objectName, "application/octet-stream", stream, contentLength,size);
+    public PutObjectResult putObject(String bucketName, String objectName, InputStream stream, long contentLength, Integer size) throws IOException {
+        return this.putObject(bucketName, objectName, "application/octet-stream", stream, contentLength, size);
     }
 
 
@@ -542,7 +542,7 @@ public class AmazonS3Template {
         String fileName = file.getOriginalFilename();
         long contentLength = file.getSize();
         String mediaType = MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM).toString();
-        return this.putObject(bucketName, objectName, mediaType, file.getInputStream(), contentLength,(ObjectUtils.isEmpty(size) || size == 0) ? file.getInputStream().available() + 1 : size);
+        return this.putObject(bucketName, objectName, mediaType, file.getInputStream(), contentLength, (ObjectUtils.isEmpty(size) || size == 0) ? file.getInputStream().available() + 1 : size);
     }
 
     /**
@@ -555,7 +555,7 @@ public class AmazonS3Template {
      * @throws IOException ioexception
      */
     public PutObjectResult putObject(String objectName, MultipartFile file, Integer size) throws IOException {
-       return this.putObject(this.getBucketName(), objectName, file, size);
+        return this.putObject(this.getBucketName(), objectName, file, size);
     }
 
     /**
@@ -629,17 +629,24 @@ public class AmazonS3Template {
         return this.amazonS3.initiateMultipartUpload(initiateMultipartUploadRequest);
     }
 
+    public InitiateMultipartUploadResult initiateMultipartUpload(String objectName, String contentType) {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(contentType);
+        InitiateMultipartUploadRequest initiateMultipartUploadRequest = new InitiateMultipartUploadRequest(this.getBucketName(), getObjectName(objectName), objectMetadata);
+        return this.amazonS3.initiateMultipartUpload(initiateMultipartUploadRequest);
+    }
+
 
     /**
      * 用于执行多部分上传中的单个部分上传操作，上传每一个分块，返回 PartETag
      *
      * @param bucketName  目标S3存储桶的名称
      * @param uploadId    初始化多部分上传时返回的唯一标识符，用于跟踪整个多部分上传过程（从InitiateMultipartUploadResult获取）
-     * @param objectName  对象在存储桶中的唯一标识符，可以理解为文件路径
+     * @param objectName  对象在存储桶中的唯一标识符，可以理解为文件路径(注意这里的objectName必须和初始化分片initiateMultipartUpload使用的objectName一样)
      * @param md5Digest   该部分数据的MD5摘要，用于验证数据完整性
      * @param partNumber  当前上传部分的编号，必须是1到10000之间的整数，每个部分编号是唯一的
      * @param partSize    该部分的大小，单位是字节。理想情况下，所有部分大小应该相等，但最后一个部分除外，它可以小一些。
-     * @param inputStream 文件输入流
+     * @param inputStream 分片文件输入流
      * @return {@link UploadPartResult}
      */
     public UploadPartResult uploadPart(String bucketName, String uploadId, String objectName, String md5Digest, Integer partNumber, long partSize, InputStream inputStream) {
@@ -669,11 +676,11 @@ public class AmazonS3Template {
      * 用于执行多部分上传中的单个部分上传操作(存储桶默认为配置文件的)
      *
      * @param uploadId    初始化多部分上传时返回的唯一标识符，用于跟踪整个多部分上传过程（从InitiateMultipartUploadResult获取）
-     * @param objectName  对象在存储桶中的唯一标识符，可以理解为文件路径
+     * @param objectName  对象在存储桶中的唯一标识符，可以理解为文件路径，可以理解为文件路径(注意这里的objectName必须和初始化分片initiateMultipartUpload使用的objectName一样)
      * @param md5Digest   该部分数据的MD5摘要，用于验证数据完整性
      * @param partNumber  当前上传部分的编号，必须是1到10000之间的整数，每个部分编号是唯一的
      * @param partSize    该部分的大小，单位是字节。理想情况下，所有部分大小应该相等，但最后一个部分除外，它可以小一些。
-     * @param inputStream 输入流
+     * @param inputStream 分片文件输入流
      * @return {@link UploadPartResult}
      */
     public UploadPartResult uploadPart(String uploadId, String objectName, String md5Digest, int partNumber, long partSize, InputStream inputStream) {
@@ -685,9 +692,9 @@ public class AmazonS3Template {
      *
      * @param bucketName 目标S3存储桶的名称
      * @param uploadId   初始化多部分上传时返回的唯一标识符，用于跟踪整个多部分上传过程（从InitiateMultipartUploadResult获取）
-     * @param objectName 对象在存储桶中的唯一标识符，可以理解为文件路径
+     * @param objectName 对象在存储桶中的唯一标识符，可以理解为文件路径，可以理解为文件路径(注意这里的objectName必须和初始化分片initiateMultipartUpload使用的objectName一样)
      * @param partNumber 当前上传部分的编号，必须是1到10000之间的整数，每个部分编号是唯一的
-     * @param file       文件
+     * @param file       分片文件
      * @return {@link UploadPartResult}
      * @throws Exception 例外
      */
@@ -711,9 +718,9 @@ public class AmazonS3Template {
      * 用于执行多部分上传中的单个部分上传操作(存储桶默认为配置文件的)
      *
      * @param uploadId   初始化多部分上传时返回的唯一标识符，用于跟踪整个多部分上传过程（从InitiateMultipartUploadResult获取）
-     * @param objectName 对象在存储桶中的唯一标识符，可以理解为文件路径
+     * @param objectName 对象在存储桶中的唯一标识符，可以理解为文件路径，可以理解为文件路径(注意这里的objectName必须和初始化分片initiateMultipartUpload使用的objectName一样)
      * @param partNumber 当前上传部分的编号，必须是1到10000之间的整数，每个部分编号是唯一的
-     * @param file       文件
+     * @param file       分片文件
      * @return {@link UploadPartResult}
      * @throws IOException              IOException
      * @throws NoSuchAlgorithmException 没有这样算法例外
@@ -724,12 +731,13 @@ public class AmazonS3Template {
 
     /**
      * 列出一个正在进行的分片上传操作的所有已上传部分(存储桶默认为配置文件的)
-     * 	返回结果包含：
-     * 	•	每个分块的 PartNumber
-     * 	•	每个分块的 ETag
-     * 	•	每个分块的 大小
-     * 	•	上传时间等信息
+     * 返回结果包含：
+     * •	每个分块的 PartNumber
+     * •	每个分块的 ETag
+     * •	每个分块的 大小
+     * •	上传时间等信息
      * 典型用法：恢复上传（断点续传）
+     *
      * @param objectName 对象在存储桶中的唯一标识符，可以理解为文件路径
      * @param uploadId   初始化多部分上传时返回的唯一标识符，用于跟踪整个多部分上传过程（从InitiateMultipartUploadResult获取）
      * @return {@link PartListing}
@@ -740,12 +748,13 @@ public class AmazonS3Template {
 
     /**
      * 列出一个正在进行的分片上传操作的所有已上传部分
-     * 	返回结果包含：
-     * 	•	每个分块的 PartNumber
-     * 	•	每个分块的 ETag
-     * 	•	每个分块的 大小
-     * 	•	上传时间等信息
+     * 返回结果包含：
+     * •	每个分块的 PartNumber
+     * •	每个分块的 ETag
+     * •	每个分块的 大小
+     * •	上传时间等信息
      * 典型用法：恢复上传（断点续传）
+     *
      * @param bucketName 目标S3存储桶的名称
      * @param objectName 对象在存储桶中的唯一标识符，可以理解为文件路径
      * @param uploadId   初始化多部分上传时返回的唯一标识符，用于跟踪整个多部分上传过程（从InitiateMultipartUploadResult获取）
@@ -776,15 +785,16 @@ public class AmazonS3Template {
 
     /**
      * 用于完成一个已开始的分片上传操作。当你上传了一个大文件的所有部分并且所有部分都成功上传后，你需要调用这个方法来通知S3所有部分已就绪，并将它们组合成一个完整的对象。
-     * 	1.	必须提供所有 PartETag
-     * 	•	每个上传成功的分块都会返回 ETag
-     * 	•	缺少任何一个分块，合并失败
-     * 	2.	调用完成后不能再次上传或修改该 UploadId
-     * 	•	对应的 Multipart Upload 会被标记为完成
-     * 	•	若有错误需要修改，必须重新发起 Multipart Upload
-     * 	3.	取消上传用 abortMultipartUpload
-     * 	•	如果上传过程中出现问题或中断，不想完成，可以调用 abortMultipartUpload
-     * 	•	避免占用 S3 存储
+     * 1.	必须提供所有 PartETag
+     * •	每个上传成功的分块都会返回 ETag
+     * •	缺少任何一个分块，合并失败
+     * 2.	调用完成后不能再次上传或修改该 UploadId
+     * •	对应的 Multipart Upload 会被标记为完成
+     * •	若有错误需要修改，必须重新发起 Multipart Upload
+     * 3.	取消上传用 abortMultipartUpload
+     * •	如果上传过程中出现问题或中断，不想完成，可以调用 abortMultipartUpload
+     * •	避免占用 S3 存储
+     *
      * @param bucketName bucket名称
      * @param objectName 对象名称
      * @param uploadId   上传id
@@ -800,15 +810,16 @@ public class AmazonS3Template {
 
     /**
      * 用于完成一个已开始的分片上传操作。当你上传了一个大文件的所有部分并且所有部分都成功上传后，你需要调用这个方法来通知S3所有部分已就绪，并将它们组合成一个完整的对象。
-     * 	1.	必须提供所有 PartETag
-     * 	•	每个上传成功的分块都会返回 ETag
-     * 	•	缺少任何一个分块，合并失败
-     * 	2.	调用完成后不能再次上传或修改该 UploadId
-     * 	•	对应的 Multipart Upload 会被标记为完成
-     * 	•	若有错误需要修改，必须重新发起 Multipart Upload
-     * 	3.	取消上传用 abortMultipartUpload
-     * 	•	如果上传过程中出现问题或中断，不想完成，可以调用 abortMultipartUpload
-     * 	•	避免占用 S3 存储
+     * 1.	必须提供所有 PartETag
+     * •	每个上传成功的分块都会返回 ETag
+     * •	缺少任何一个分块，合并失败
+     * 2.	调用完成后不能再次上传或修改该 UploadId
+     * •	对应的 Multipart Upload 会被标记为完成
+     * •	若有错误需要修改，必须重新发起 Multipart Upload
+     * 3.	取消上传用 abortMultipartUpload
+     * •	如果上传过程中出现问题或中断，不想完成，可以调用 abortMultipartUpload
+     * •	避免占用 S3 存储
+     *
      * @param bucketName 目标S3存储桶的名称
      * @param objectName 对象在存储桶中的唯一标识符，可以理解为文件路径
      * @param uploadId   初始化多部分上传时返回的唯一标识符，用于跟踪整个多部分上传过程（从InitiateMultipartUploadResult获取）
@@ -849,6 +860,7 @@ public class AmazonS3Template {
     /**
      * 用于列出指定存储桶中所有正在进行的分片上传作业。这个方法对于管理和监控存储桶中的分片上传是非常有用的，特别是当需要清理未完成的上传或者分析存储桶状态时(存储桶为配置文件中的)。
      * 仅显示 正在进行的或未完成的分块上传，已完成或已中止的 UploadId 不会显示。
+     *
      * @param prefix    前缀,列出具有特定前缀的对象
      * @param delimiter 分隔符,用于模拟目录结构，分隔符是目录路径的分隔符
      * @return {@link MultipartUploadListing}
@@ -860,6 +872,7 @@ public class AmazonS3Template {
     /**
      * 用于列出指定存储桶中所有正在进行的分片上传作业。这个方法对于管理和监控存储桶中的分片上传是非常有用的，特别是当需要清理未完成的上传或者分析存储桶状态时。
      * 仅显示 正在进行的或未完成的分块上传，已完成或已中止的 UploadId
+     *
      * @param bucketName bucket名称
      * @param prefix     前缀,列出具有特定前缀的对象
      * @param delimiter  分隔符,用于模拟目录结构，分隔符是目录路径的分隔符
@@ -942,7 +955,6 @@ public class AmazonS3Template {
             return url + "/" + objectName;
         }
     }
-
 
 
     public static Date formDuration(Integer time, TimeUnit timeUnit) {

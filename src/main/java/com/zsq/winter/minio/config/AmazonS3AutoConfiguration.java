@@ -21,9 +21,9 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(A.class)的作用就是如果 A 这个类上使用了 @ConfigurationProperties 注解,那么 A 这个类会与 xxx.properties/xxx.yml 进行动态绑定,并且会将 A 这个类加入 IOC 容器中,并交由 IOC 容器进行管理
 如果添加了@EnableConfigurationProperties注解  在使用@ConfigurationProperties 注解的时候    实体类就不需要加上 @Component 注解了
 */
-//只有当配置中明确设置了"minio-aws.enabled=true"时或者完全没定义"minio-aws.enabled"时，被此注解标记的配置或Bean才会被Spring容器初始化
+//只有当配置中明确设置了"winter-aws.enabled=true"时或者完全没定义"winter-aws.enabled"时，被此注解标记的配置或Bean才会被Spring容器初始化
 @ConditionalOnProperty(
-        prefix = "minio-aws",
+        prefix = "winter-aws",
         name = {"enabled"},
         havingValue = "true",
         matchIfMissing = true
@@ -38,6 +38,9 @@ public class AmazonS3AutoConfiguration {
     @ConditionalOnMissingBean({AmazonS3.class})
     @Bean
     public AmazonS3 amazon(AmazonS3Properties minioProperties) {
+        // 禁用AWS SDK 1.x弃用警告
+        System.setProperty("aws.java.v1.disableDeprecationAnnouncement", "true");
+        
         //设置连接时的参数
         ClientConfiguration config = new ClientConfiguration();
         // 设置AmazonS3使用的最大连接数
